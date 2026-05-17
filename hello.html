@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello, claudeshare — what lives here</title>
+  <meta name="description" content="A working surface for fast-moving artifacts from Big House Lab.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Geist+Mono:wght@300..600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #100c08;
+      --bg-elev: #1a1410;
+      --fg: #ece4d4;
+      --fg-dim: #8a7f6f;
+      --fg-meta: #5d5446;
+      --accent: #d4773a;
+      --accent-soft: #d4773a30;
+      --line: #2a221b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Geist Mono', ui-monospace, 'SF Mono', monospace;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    body {
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, #1f1812 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 90% 80%, #1a1108 0%, transparent 70%);
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.85' numOctaves='2' /%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: overlay;
+    }
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: clamp(2rem, 5vw, 5rem) clamp(1.5rem, 4vw, 3rem);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Top crumb */
+    .crumb {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--fg-meta);
+      text-decoration: none;
+      margin-bottom: 4rem;
+      transition: color 0.2s ease;
+    }
+    .crumb::before {
+      content: '←';
+      font-family: 'Fraunces', serif;
+      font-size: 1rem;
+      color: var(--accent);
+      transition: transform 0.25s ease;
+    }
+    .crumb:hover { color: var(--fg); }
+    .crumb:hover::before { transform: translateX(-3px); }
+
+    .eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+    }
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 1.5rem; height: 1px;
+      background: var(--accent);
+    }
+
+    .title {
+      font-family: 'Fraunces', serif;
+      font-weight: 300;
+      font-style: italic;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.035em;
+      font-variation-settings: 'SOFT' 50, 'WONK' 1, 'opsz' 144;
+      margin-bottom: 1.75rem;
+    }
+    .title-dot { color: var(--accent); font-style: normal; }
+
+    .dek {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+      color: var(--fg-dim);
+      line-height: 1.45;
+      max-width: 32em;
+      margin-bottom: 4rem;
+      padding-bottom: 4rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    /* Body */
+    .prose p {
+      font-family: 'Fraunces', serif;
+      font-weight: 400;
+      font-size: 1.15rem;
+      line-height: 1.65;
+      color: var(--fg);
+      margin-bottom: 1.5rem;
+      font-variation-settings: 'opsz' 14;
+    }
+    .prose p + p { margin-top: -0.25rem; }
+
+    .prose .lede {
+      font-size: 1.4rem;
+      line-height: 1.5;
+      font-style: italic;
+      color: var(--fg);
+      font-weight: 300;
+    }
+    .prose .lede::first-letter {
+      font-size: 3.5rem;
+      float: left;
+      line-height: 0.85;
+      padding: 0.3rem 0.6rem 0 0;
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    .prose em { color: var(--accent); font-style: italic; }
+    .prose strong { color: var(--fg); font-weight: 500; }
+    .prose code {
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.9em;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+    }
+
+    .section-mark {
+      margin: 4rem 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .section-mark::before, .section-mark::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+    .section-mark-icon {
+      color: var(--accent);
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: 1.5rem;
+    }
+
+    /* Specs block */
+    .specs {
+      margin-top: 4rem;
+      padding: 2rem;
+      background: var(--bg-elev);
+      border-left: 2px solid var(--accent);
+    }
+    .specs-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+    .specs-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem 2rem;
+      font-size: 0.8rem;
+    }
+    .specs-key {
+      color: var(--fg-meta);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      padding-top: 0.15rem;
+    }
+    .specs-val { color: var(--fg); }
+    .specs-val a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--accent-soft);
+      transition: border-color 0.2s ease;
+    }
+    .specs-val a:hover { border-color: var(--accent); }
+
+    .footer {
+      margin-top: 5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      color: var(--fg-meta);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer a {
+      color: var(--fg-dim);
+      text-decoration: none;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 1px;
+      transition: all 0.2s ease;
+    }
+    .footer a:hover { color: var(--accent); border-color: var(--accent); }
+
+    @media (max-width: 640px) {
+      .prose .lede::first-letter { font-size: 2.8rem; }
+      .specs-grid { grid-template-columns: 1fr; gap: 0.25rem; }
+      .specs-key { margin-top: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="crumb">Index</a>
+
+    <div class="eyebrow">Colophon · No. 001</div>
+
+    <h1 class="title">Hello,<br>claudeshare<span class="title-dot">.</span></h1>
+
+    <p class="dek">A working surface for fast-moving artifacts — briefings drafted in motion, demos built long enough to settle a question, tools assembled and shipped before the meeting that called for them.</p>
+
+    <div class="prose">
+      <p class="lede">This space is the front door to a quiet pipeline: Claude drafts an HTML artifact, it lands in a GitHub folder, Cloudflare deploys it, and it shows up here — usually within the minute. No build step, no framework, no ceremony.</p>
+
+      <p>The point isn't to host a website. The point is to <em>remove the friction</em> between thinking out loud with an AI and having something I can hand someone — a client, a colleague, a future me. Most of what gets shipped here has a half-life measured in days. That's a feature.</p>
+
+      <p>If you've landed on a specific artifact and don't have context, the page itself is the answer. If you're poking around the index because someone shared a link, welcome — most of the work here is field-notes-shaped: a thesis, a sketch, a take, occasionally a tool.</p>
+
+      <div class="section-mark"><span class="section-mark-icon">✦</span></div>
+
+      <p>Every artifact follows the same loose grammar: a clear <code>&lt;title&gt;</code> so the indexer can find it, a single page that does one thing, and no dependencies it can't fetch from a CDN. If you're forking one for your own use, that's the spec.</p>
+
+      <p>Things you might find here over time: <strong>security briefings</strong>, <strong>positioning decks</strong> for client conversations, <strong>readiness assessments</strong>, <strong>RAMR-MC dashboards</strong> when the trading system has something to show, and the occasional <strong>field guide</strong> from the road. Some of it is internal. Most of it isn't sensitive. Where it is, you won't see a link.</p>
+    </div>
+
+    <aside class="specs">
+      <div class="specs-label">◆ Build &amp; stack</div>
+      <div class="specs-grid">
+        <div class="specs-key">Surface</div>
+        <div class="specs-val">claudeshare.signalhouse.cloud</div>
+
+        <div class="specs-key">Pipeline</div>
+        <div class="specs-val">Claude → GitHub → Cloudflare Workers (static assets)</div>
+
+        <div class="specs-key">Indexer</div>
+        <div class="specs-val">Generated at deploy time by <code>generate-index.js</code></div>
+
+        <div class="specs-key">Typography</div>
+        <div class="specs-val">Fraunces (display) · Geist Mono (UI &amp; meta)</div>
+
+        <div class="specs-key">Operator</div>
+        <div class="specs-val">Big House Lab · <a href="https://escapepoorthinking.com">escapepoorthinking.com</a></div>
+      </div>
+    </aside>
+
+    <footer class="footer">
+      <span>Big House Lab // <script>document.write(new Date().getFullYear())</script></span>
+      <span><a href="/">← back to index</a></span>
+    </footer>
+  </div>
+</body>
+</html>
