@@ -3,5 +3,10 @@ compatibility_date = "2025-01-01"
 workers_dev = true
 preview_urls = false
 
+# Runs before assets are uploaded. Regenerates public/index.html
+# from whatever .html files are in public/.
+[build]
+command = "node generate-index.js"
+
 [assets]
 directory = "./public"
