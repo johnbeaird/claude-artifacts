@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CCFA Study Guide — CrowdStrike Certified Falcon Administrator</title>
+  <meta name="description" content="A field-notes study guide for the CrowdStrike Certified Falcon Administrator (CCFA-200b) exam: domains, key concepts, gotchas.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Geist+Mono:wght@300..600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #100c08;
+      --bg-elev: #1a1410;
+      --fg: #ece4d4;
+      --fg-dim: #8a7f6f;
+      --fg-meta: #5d5446;
+      --accent: #d4773a;
+      --accent-soft: #d4773a30;
+      --accent-glow: #d4773a18;
+      --line: #2a221b;
+      --warn: #c75c4d;
+      --warn-soft: #c75c4d20;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Geist Mono', ui-monospace, 'SF Mono', monospace;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      scroll-behavior: smooth;
+    }
+    body {
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, #1f1812 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 90% 80%, #1a1108 0%, transparent 70%);
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.85' numOctaves='2' /%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: overlay;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: clamp(2rem, 5vw, 5rem) clamp(1.5rem, 4vw, 3rem);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Top crumb */
+    .crumb {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--fg-meta);
+      text-decoration: none;
+      margin-bottom: 4rem;
+      transition: color 0.2s ease;
+    }
+    .crumb::before {
+      content: '←';
+      font-family: 'Fraunces', serif;
+      font-size: 1rem;
+      color: var(--accent);
+      transition: transform 0.25s ease;
+    }
+    .crumb:hover { color: var(--fg); }
+    .crumb:hover::before { transform: translateX(-3px); }
+
+    .eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+    }
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 1.5rem; height: 1px;
+      background: var(--accent);
+    }
+
+    .title {
+      font-family: 'Fraunces', serif;
+      font-weight: 300;
+      font-style: italic;
+      font-size: clamp(2.8rem, 7.5vw, 5rem);
+      line-height: 0.95;
+      letter-spacing: -0.035em;
+      font-variation-settings: 'SOFT' 50, 'WONK' 1, 'opsz' 144;
+      margin-bottom: 1.75rem;
+    }
+    .title-dot { color: var(--accent); font-style: normal; }
+
+    .dek {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(1.1rem, 1.7vw, 1.4rem);
+      color: var(--fg-dim);
+      line-height: 1.45;
+      max-width: 34em;
+      margin-bottom: 3rem;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    /* Exam at a glance — specs block at top */
+    .glance {
+      margin-bottom: 3.5rem;
+      padding: 2rem;
+      background: var(--bg-elev);
+      border-left: 2px solid var(--accent);
+    }
+    .glance-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+    .glance-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem 2rem;
+      font-size: 0.85rem;
+    }
+    .glance-key {
+      color: var(--fg-meta);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      padding-top: 0.15rem;
+    }
+    .glance-val { color: var(--fg); }
+    .glance-val strong { color: var(--accent); font-weight: 500; }
+
+    /* Table of contents */
+    .toc {
+      margin-bottom: 4rem;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .toc-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--fg-meta);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .toc-label::before {
+      content: '';
+      display: inline-block;
+      width: 1rem; height: 1px;
+      background: var(--fg-meta);
+    }
+    .toc-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem 2rem;
+      font-size: 0.85rem;
+    }
+    .toc-list li { display: flex; gap: 0.75rem; }
+    .toc-num {
+      color: var(--fg-meta);
+      font-variant-numeric: tabular-nums;
+      min-width: 1.5rem;
+    }
+    .toc-list a {
+      color: var(--fg-dim);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      border-bottom: 1px solid transparent;
+    }
+    .toc-list a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent-soft);
+    }
+
+    /* Section structure */
+    .section {
+      margin-bottom: 4rem;
+      scroll-margin-top: 2rem;
+    }
+    .section-num {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .section-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 400;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.25rem;
+      font-variation-settings: 'opsz' 60;
+    }
+    .section-intro {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1.1rem;
+      color: var(--fg-dim);
+      line-height: 1.55;
+      margin-bottom: 1.5rem;
+      max-width: 36em;
+    }
+
+    /* Prose styles */
+    .prose p {
+      font-family: 'Fraunces', serif;
+      font-weight: 400;
+      font-size: 1.05rem;
+      line-height: 1.65;
+      color: var(--fg);
+      margin-bottom: 1.25rem;
+      font-variation-settings: 'opsz' 14;
+    }
+    .prose .lede {
+      font-size: 1.25rem;
+      line-height: 1.55;
+      font-style: italic;
+      font-weight: 300;
+    }
+    .prose .lede::first-letter {
+      font-size: 3rem;
+      float: left;
+      line-height: 0.85;
+      padding: 0.3rem 0.55rem 0 0;
+      color: var(--accent);
+      font-style: normal;
+    }
+    .prose em { color: var(--accent); font-style: italic; }
+    .prose strong { color: var(--fg); font-weight: 500; }
+    .prose code {
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.88em;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 0.08rem 0.4rem;
+      border-radius: 2px;
+    }
+
+    /* Key facts list — bullet alternative */
+    .facts {
+      list-style: none;
+      margin: 1rem 0 1.5rem;
+      padding: 0;
+    }
+    .facts li {
+      font-family: 'Fraunces', serif;
+      font-size: 1.02rem;
+      line-height: 1.55;
+      color: var(--fg);
+      padding: 0.4rem 0 0.4rem 1.5rem;
+      position: relative;
+      font-variation-settings: 'opsz' 14;
+    }
+    .facts li::before {
+      content: '◆';
+      position: absolute;
+      left: 0;
+      top: 0.5rem;
+      color: var(--accent);
+      font-size: 0.6rem;
+    }
+    .facts li strong {
+      color: var(--fg);
+      font-weight: 500;
+    }
+    .facts li code {
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.85em;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 0.08rem 0.35rem;
+      border-radius: 2px;
+    }
+
+    /* Watch list / gotcha callout */
+    .gotcha {
+      margin: 1.5rem 0;
+      padding: 1.5rem 1.75rem;
+      background: var(--warn-soft);
+      border-left: 2px solid var(--warn);
+    }
+    .gotcha-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--warn);
+      margin-bottom: 0.75rem;
+      font-weight: 500;
+    }
+    .gotcha p {
+      font-family: 'Fraunces', serif;
+      font-size: 1rem;
+      line-height: 1.55;
+      color: var(--fg);
+      margin: 0;
+    }
+    .gotcha p + p { margin-top: 0.75rem; }
+
+    /* Section divider */
+    .section-mark {
+      margin: 3rem 0;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .section-mark::before, .section-mark::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+    .section-mark-icon {
+      color: var(--accent);
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: 1.5rem;
+    }
+
+    /* Acronym glossary */
+    .glossary {
+      margin-top: 3rem;
+      padding: 2rem;
+      background: var(--bg-elev);
+      border-left: 2px solid var(--fg-meta);
+    }
+    .glossary-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      margin-bottom: 1.25rem;
+    }
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.5rem 1.5rem;
+      font-size: 0.8rem;
+    }
+    .glossary-term {
+      color: var(--accent);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      padding-top: 0.15rem;
+    }
+    .glossary-def {
+      color: var(--fg-dim);
+      line-height: 1.5;
+    }
+
+    .footer {
+      margin-top: 5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      color: var(--fg-meta);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer a {
+      color: var(--fg-dim);
+      text-decoration: none;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 1px;
+      transition: all 0.2s ease;
+    }
+    .footer a:hover { color: var(--accent); border-color: var(--accent); }
+
+    @media (max-width: 640px) {
+      .prose .lede::first-letter { font-size: 2.5rem; }
+      .glance-grid, .glossary-grid { grid-template-columns: 1fr; gap: 0.25rem; }
+      .glance-key, .glossary-term { margin-top: 0.75rem; }
+      .toc-list { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="crumb">Index</a>
+
+    <div class="eyebrow">Field Notes · No. 002 · Certification Prep</div>
+
+    <h1 class="title">CCFA<br>Study Guide<span class="title-dot">.</span></h1>
+
+    <p class="dek">A working study guide for the CrowdStrike Certified Falcon Administrator (CCFA-200b) exam. Sixteen domains, the gotchas that catch people, and where to actually spend your study time.</p>
+
+    <!-- Exam at a glance -->
+    <aside class="glance">
+      <div class="glance-label">◆ Exam at a glance</div>
+      <div class="glance-grid">
+        <div class="glance-key">Exam code</div>
+        <div class="glance-val"><strong>CCFA-200b</strong> (current version)</div>
+        <div class="glance-key">Format</div>
+        <div class="glance-val">60 questions, multiple choice, closed-book</div>
+        <div class="glance-key">Time limit</div>
+        <div class="glance-val">90 minutes (~90 seconds per question)</div>
+        <div class="glance-key">Passing score</div>
+        <div class="glance-val"><strong>80%</strong></div>
+        <div class="glance-key">Cost</div>
+        <div class="glance-val">$250 USD via Pearson VUE</div>
+        <div class="glance-key">Prereq</div>
+        <div class="glance-val">No hard prereq; <em>6 months</em> production Falcon experience strongly recommended</div>
+        <div class="glance-key">Validity</div>
+        <div class="glance-val">2 years from pass date</div>
+      </div>
+    </aside>
+
+    <!-- Table of contents -->
+    <nav class="toc">
+      <div class="toc-label">Contents</div>
+      <ol class="toc-list">
+        <li><span class="toc-num">01</span><a href="#d1">User Management &amp; RBAC</a></li>
+        <li><span class="toc-num">02</span><a href="#d2">Sensor Deployment</a></li>
+        <li><span class="toc-num">03</span><a href="#d3">Host Management &amp; Setup</a></li>
+        <li><span class="toc-num">04</span><a href="#d4">Host Groups</a></li>
+        <li><span class="toc-num">05</span><a href="#d5">Prevention Policies</a></li>
+        <li><span class="toc-num">06</span><a href="#d6">Custom IOA Rules</a></li>
+        <li><span class="toc-num">07</span><a href="#d7">Sensor Update Policies</a></li>
+        <li><span class="toc-num">08</span><a href="#d8">Response Policies &amp; RTR</a></li>
+        <li><span class="toc-num">09</span><a href="#d9">Containment</a></li>
+        <li><span class="toc-num">10</span><a href="#d10">Exclusions</a></li>
+        <li><span class="toc-num">11</span><a href="#d11">Firewall Policies</a></li>
+        <li><span class="toc-num">12</span><a href="#d12">Quarantined Files</a></li>
+        <li><span class="toc-num">13</span><a href="#d13">IOC Management</a></li>
+        <li><span class="toc-num">14</span><a href="#d14">USB Device Control</a></li>
+        <li><span class="toc-num">15</span><a href="#d15">Dashboards &amp; Reports</a></li>
+        <li><span class="toc-num">16</span><a href="#d16">Workflows</a></li>
+        <li><span class="toc-num">★</span><a href="#critical">The Critical Distinctions</a></li>
+        <li><span class="toc-num">★</span><a href="#prep">Prep Strategy</a></li>
+        <li><span class="toc-num">★</span><a href="#glossary">Glossary</a></li>
+      </ol>
+    </nav>
+
+    <!-- Opening lede -->
+    <div class="prose" style="margin-bottom: 3rem;">
+      <p class="lede">The CCFA is a closed-book, scenario-driven exam aimed at people who actually run Falcon — not theory people. CrowdStrike wants to know whether you can deploy sensors, configure policies, manage users, and read the console without freezing up. The questions reward operational fluency over textbook recall.</p>
+      <p>What follows is organized by the sixteen domain areas CrowdStrike publishes, with the high-yield concepts in each, the places people lose points, and a short critical-distinctions section at the end for the things that get conflated under pressure.</p>
+    </div>
+
+    <!-- DOMAIN 1: User Management -->
+    <section class="section" id="d1">
+      <div class="section-num">Domain 01 · User Management &amp; RBAC</div>
+      <h2 class="section-title">Roles, permissions, and API keys</h2>
+      <p class="section-intro">Knowing the canned roles cold and how custom roles compose are the bread and butter here.</p>
+      <ul class="facts">
+        <li>Falcon uses <strong>Role-Based Access Control (RBAC)</strong>. Built-in roles include Falcon Administrator, Falcon Analyst, Falcon Investigator, Endpoint Manager, and the Real Time Response role family.</li>
+        <li>Roles can be <em>scoped</em> to specific host groups — a user can be admin over one fleet and read-only on another.</li>
+        <li><strong>API keys</strong> are managed under Support and resources → API Clients and Keys. Each client has its own scopes; keys can be rotated and revoked.</li>
+        <li>2FA is required for human users; service accounts use API client credentials, not 2FA.</li>
+        <li>You can clone an existing role to start a custom one — faster than building from scratch.</li>
+      </ul>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Watch your six</div>
+        <p>If a user needs to read files on a compromised host but should not be able to <em>extract</em> them, the right role is <strong>Real Time Responder — Read Only Analyst</strong>, not Active Responder. Read Only Analyst gets a narrow command set (<code>cat</code>, <code>cd</code>, <code>ls</code>, <code>ps</code>, <code>reg</code>, <code>filehash</code>, etc.) — no <code>get</code>, no <code>put</code>, no killing processes.</p>
+      </div>
+    </section>
+
+    <!-- DOMAIN 2: Sensor Deployment -->
+    <section class="section" id="d2">
+      <div class="section-num">Domain 02 · Sensor Deployment</div>
+      <h2 class="section-title">Installation, prerequisites, and the troubleshooting that follows</h2>
+      <p class="section-intro">The exam will hand you broken installs and ask you to diagnose. Know the install flags by feel.</p>
+      <ul class="facts">
+        <li><strong>OS prerequisites</strong> matter: each OS has a supported kernel/version matrix. Falcon will refuse to install on unsupported kernels and goes into Reduced Functionality Mode (RFM) on partially supported ones.</li>
+        <li><strong>Default provisioning window</strong>: a fresh sensor has <code>20 minutes</code> to phone home to the CrowdStrike cloud (10 minutes on Falcon 6.21 and earlier). If it can't reach cloud in that window, the sensor uninstalls itself.</li>
+        <li>You can override the provisioning window at install time with <code>--provisioning-token</code> + <code>ProvNoWait=1</code> or by extending the timeout (e.g., <code>ProvWaitTime</code> on Windows).</li>
+        <li>Linux uses <code>falconctl</code> to license/configure the sensor. macOS requires Full Disk Access granted to the Falcon package before licensing.</li>
+        <li>To verify the Windows sensor is running: <code>sc query csagent</code>. The service name is <code>CSAgent</code>; the process is <code>CSFalconService.exe</code>.</li>
+      </ul>
+    </section>
+
+    <!-- DOMAIN 3: Host Management -->
+    <section class="section" id="d3">
+      <div class="section-num">Domain 03 · Host Management &amp; Setup</div>
+      <h2 class="section-title">Filtering hosts, RFM, and the inactive sensor lifecycle</h2>
+      <p class="section-intro">Operational page-navigation questions live here. Know the filters and the timelines.</p>
+      <ul class="facts">
+        <li><strong>Host Management filters</strong> include: hostname, group, OS version, sensor version, last seen, OU (Active Directory Organizational Unit), health events, detections, preventions. <em>Username is not a filter.</em></li>
+        <li><strong>Inactive sensor lifecycle:</strong> a host that hasn't checked in for <code>7 days</code> moves from Host Management to the <strong>Trash</strong> page. It stays in Trash for <code>90 days</code> before permanent deletion. Restoring works if it checks back in during that window.</li>
+        <li><strong>Reduced Functionality Mode (RFM)</strong> is when the sensor is installed but can't fully operate (unsupported kernel, missing FDA, etc.). Detections and prevention are limited; the host is still visible but flagged.</li>
+        <li>Disabling detections on a host suppresses new detections but does <em>not</em> remove existing ones — useful for known-good systems generating noise.</li>
+      </ul>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Watch your six</div>
+        <p>To find sensors that haven't checked in recently: <em>Host setup and management → Managed endpoints → Inactive Sensors</em>, then set the time range. The Sensor Report widget will get you there too, but the dedicated Inactive Sensors view is the canonical answer.</p>
+      </div>
+    </section>
+
+    <!-- DOMAIN 4: Groups -->
+    <section class="section" id="d4">
+      <div class="section-num">Domain 04 · Host Groups</div>
+      <h2 class="section-title">Static vs. dynamic group membership</h2>
+      <ul class="facts">
+        <li><strong>Static groups:</strong> you explicitly add/remove hosts. Predictable, manual.</li>
+        <li><strong>Dynamic groups:</strong> membership is rule-based — host attributes (OS, OU, tag, hostname pattern) determine inclusion. Membership re-evaluates automatically.</li>
+        <li>A host can belong to <em>multiple groups</em>, and policies attach to groups. When multiple policies match, <strong>precedence</strong> on the policy assignment list breaks the tie (top wins).</li>
+        <li>Best practice: keep group purposes narrow and orthogonal (by OS, by environment, by criticality) so policy mapping stays auditable.</li>
+      </ul>
+    </section>
+
+    <!-- DOMAIN 5: Prevention Policies -->
+    <section class="section" id="d5">
+      <div class="section-num">Domain 05 · Prevention Policies</div>
+      <h2 class="section-title">Toggles, sensitivity, and what's actually blocking</h2>
+      <p class="section-intro">Prevention policies are where Falcon decides what to <em>stop</em>, not just detect. Sensitivity sliders are exam-favorite material.</p>
+      <ul class="facts">
+        <li>Prevention policies have separate slider groups for <strong>Cloud Anti-Malware</strong>, <strong>Sensor Anti-Malware</strong>, <strong>Behavior-Based Protection</strong>, <strong>Execution Blocking</strong>, and more — each with a sensitivity level and a detection-or-prevention toggle.</li>
+        <li>Slider values: typically <code>Disabled</code>, <code>Cautious</code>, <code>Moderate</code>, <code>Aggressive</code>, <code>Extra Aggressive</code>. Higher = more false positives.</li>
+        <li>Each toggleable feature has two independent settings: <strong>Detect</strong> (alert only) and <strong>Prevent</strong> (block + alert). You can detect without preventing.</li>
+        <li>Like sensor update policies, the <strong>Default Prevention Policy</strong> is the catch-all when no other policy matches a host's groups.</li>
+        <li>Changes propagate to sensors during their next check-in (~few minutes), not instantly.</li>
+      </ul>
+    </section>
+
+    <!-- DOMAIN 6: Custom IOAs -->
+    <section class="section" id="d6">
+      <div class="section-num">Domain 06 · Custom IOA Rules</div>
+      <h2 class="section-title">When the built-in detections aren't enough</h2>
+      <p class="section-intro">Custom Indicators of Attack (IOAs) let you describe behaviors that should trigger detection or prevention, beyond CrowdStrike's stock library.</p>
+      <ul class="facts">
+        <li>Rule types include <strong>Process Creation</strong>, <strong>File Creation</strong>, <strong>Network Connection</strong>, <strong>Domain</strong>, <strong>DNS</strong>, and more — each with type-specific fields.</li>
+        <li>Actions per rule: <code>Monitor</code> (log only), <code>Detect</code> (alert), <code>Kill Process</code> (the closest to "block" — kills the offending process).</li>
+        <li>Rules live inside <strong>rule groups</strong>; rule groups are assigned to <strong>prevention policies</strong>. Assignment flow: rules → rule group → prevention policy → host group.</li>
+        <li>Pattern syntax uses regex-style wildcards. To match a domain and all its subdomains: <code>*.baddomain.xyz|baddomain.xyz</code> — the pipe lets you match the bare domain too.</li>
+        <li>Custom IOAs can block via network/domain — useful when IOC management can't (see Domain 13).</li>
+      </ul>
+    </section>
+
+    <!-- DOMAIN 7: Sensor Update Policies -->
+    <section class="section" id="d7">
+      <div class="section-num">Domain 07 · Sensor Update Policies</div>
+      <h2 class="section-title">Version pinning and uninstall protection</h2>
+      <ul class="facts">
+        <li>Three update strategies: <strong>Latest Sensor Version</strong>, <strong>N-1 (one version behind latest)</strong>, <strong>N-2 (two versions behind)</strong>, or a <em>specific pinned version</em>.</li>
+        <li><strong>Uninstall and Maintenance Protection</strong>: when enabled, uninstalling or running maintenance commands on the sensor requires a <strong>maintenance token</strong> generated from the console. Prevents unauthorized or accidental removal.</li>
+        <li>Tokens can be one-time or bulk-generated; they're tied to the AID (Agent ID) or to the customer.</li>
+        <li>The <strong>Default Sensor Update Policy</strong> is the catch-all — it applies to any host not matched by another policy. Often set to "latest" or "N-1" depending on org risk tolerance.</li>
+      </ul>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Watch your six</div>
+        <p>The "Default" qualifier appears on <em>both</em> Sensor Update Policies <em>and</em> Prevention Policies. The exam will quiz you on which Default is the catch-all for what — read the question carefully.</p>
+      </div>
+    </section>
+
+    <!-- DOMAIN 8: Response Policies & RTR -->
+    <section class="section" id="d8">
+      <div class="section-num">Domain 08 · Response Policies &amp; Real Time Response</div>
+      <h2 class="section-title">Three RTR roles, three command tiers</h2>
+      <p class="section-intro">Real Time Response (RTR) is the remote-shell capability into a host. Roles gate the command set; response policies gate what RTR can do on a given host.</p>
+      <ul class="facts">
+        <li><strong>RTR — Read Only Analyst:</strong> diagnostic commands only. <code>cat</code>, <code>cd</code>, <code>clear</code>, <code>env</code>, <code>eventlog</code>, <code>filehash</code>, <code>getsid</code>, <code>help</code>, <code>history</code>, <code>ipconfig</code>, <code>ls</code>, <code>mount</code>, <code>netstat</code>, <code>ps</code>, <code>reg</code>. No file removal, no process kill.</li>
+        <li><strong>RTR — Active Responder:</strong> all Read Only commands plus active ones — <code>get</code> (pull a file), <code>put</code>, <code>kill</code>, <code>rm</code>, <code>runscript</code>, <code>memdump</code>, <code>restart</code>. Can take action.</li>
+        <li><strong>RTR — Administrator:</strong> everything Active Responder gets, plus visibility into <em>all</em> analyst sessions and the ability to manage custom scripts and Put files. Use for IR leads and audit.</li>
+        <li>Response policies sit alongside prevention policies and define what RTR features are enabled on the host (sessions, command logging, queued commands, custom scripts).</li>
+      </ul>
+    </section>
+
+    <!-- DOMAIN 9: Containment -->
+    <section class="section" id="d9">
+      <div class="section-num">Domain 09 · Containment</div>
+      <h2 class="section-title">Network containment, not full quarantine</h2>
+      <ul class="facts">
+        <li><strong>Network containment</strong> isolates a host: only Falcon traffic and explicitly allowlisted IPs can reach the host. Everything else is blocked.</li>
+        <li>You can <strong>allowlist IPs</strong> for containment exemptions (e.g., your jump box, your patching infrastructure). Configure in containment policy.</li>
+        <li>Containment is reversible — release the host from the console and traffic flows resume.</li>
+        <li>Containment is a <em>policy</em>: hosts must be in a group with containment enabled, and a user with the right role must trigger it. Don't confuse containment with quarantine of a file.</li>
+      </ul>
+    </section>
+
+    <!-- DOMAIN 10: Exclusions -->
+    <section class="section" id="d10">
+      <div class="section-num">Domain 10 · Exclusions</div>
+      <h2 class="section-title">When you need Falcon to ignore a path</h2>
+      <ul class="facts">
+        <li>Three exclusion types: <strong>Sensor Visibility Exclusions</strong> (sensor stops reporting events from this path), <strong>Machine Learning Exclusions</strong> (ML detections are suppressed for this path), <strong>IOA Exclusions</strong> (Indicators of Attack are skipped here).</li>
+        <li>Exclusions are <em>powerful</em> — they reduce visibility. Scope them to the narrowest path possible and avoid wildcards that catch too much.</li>
+        <li>Path syntax supports wildcards: <code>*</code> matches anything in a path segment; <code>**</code> matches across segments.</li>
+        <li>Exclusions are scoped to host groups, not global by default. Always check assignment before assuming an exclusion is live.</li>
+      </ul>
+    </section>
+
+    <!-- DOMAIN 11: Firewall -->
+    <section class="section" id="d11">
+      <div class="section-num">Domain 11 · Firewall Policies</div>
+      <h2 class="section-title">Managing the host firewall through Falcon</h2>
+      <ul class="facts">
+        <li>Falcon Firewall Management lets you control the native host firewall (Windows Defender Firewall, etc.) from the Falcon console.</li>
+        <li>Policies have <strong>rule groups</strong> with inbound/outbound rules; rule precedence is top-down within a policy.</li>
+        <li>You can enforce or monitor: <strong>Enforce</strong> mode pushes rules to the host firewall; <strong>Monitor</strong> mode logs what would have been blocked without changing the host firewall state.</li>
+        <li>Rule actions: Allow, Block, Monitor. Test in Monitor before flipping to Enforce.</li>
+      </ul>
+    </section>
+
+    <!-- DOMAIN 12: Quarantined Files -->
+    <section class="section" id="d12">
+      <div class="section-num">Domain 12 · Quarantined Files</div>
+      <h2 class="section-title">Where blocked files go to wait</h2>
+      <ul class="facts">
+        <li>When Falcon prevents a malicious file, it's <em>quarantined</em> — moved to a protected location on the host where it can't execute, and a record is created in the console.</li>
+        <li>From the Quarantined Files page: <strong>Release</strong> (restore the file — for false positives), <strong>Delete</strong> (permanent), or <strong>Download</strong> (pull a copy for analysis).</li>
+        <li>Downloads are password-protected ZIPs by default to prevent accidental execution. Default password: <code>infected</code> (verify in your tenant).</li>
+        <li>Quarantine retention is configurable — files don't sit there forever.</li>
+      </ul>
+    </section>
+
+    <!-- DOMAIN 13: IOCs -->
+    <section class="section" id="d13">
+      <div class="section-num">Domain 13 · IOC Management</div>
+      <h2 class="section-title">What IOCs can — and cannot — do</h2>
+      <p class="section-intro">This is the highest-value gotcha in the entire exam. Burn it in.</p>
+      <ul class="facts">
+        <li><strong>Indicators of Compromise (IOCs)</strong> in Falcon are limited to two actions: <code>Detect only</code> and <code>No action</code>. <em>You cannot block via IOC management.</em></li>
+        <li>IOC types: <strong>SHA256</strong>, <strong>MD5</strong>, <strong>IPv4/IPv6</strong>, <strong>Domain</strong>. Files (hashes) can be blocked via Prevention policy hash blocklists; <em>network IOCs cannot block via IOC management at all</em>.</li>
+        <li>If you need to <em>block</em> an IP or domain, use a <strong>Custom IOA rule</strong> with action "Kill Process" on a Network Connection or Domain rule type (see Domain 6).</li>
+        <li>IOCs are tenant-wide; they apply across all hosts unless scoped via platform/host filtering.</li>
+      </ul>
+      <div class="gotcha">
+        <div class="gotcha-label">⚠ Watch your six — exam-favorite</div>
+        <p>"How do you block traffic to <code>baddomain.xyz</code>?" The wrong answer is "create an IOC." IOCs only detect on network indicators. The right answer is "create a Custom IOA with a Domain rule." Memorize this distinction.</p>
+      </div>
+    </section>
+
+    <!-- DOMAIN 14: USB -->
+    <section class="section" id="d14">
+      <div class="section-num">Domain 14 · USB Device Control</div>
+      <h2 class="section-title">Allow, block, audit removable storage</h2>
+      <ul class="facts">
+        <li>USB Device Control policies restrict use of USB mass storage and other USB devices by class, vendor, product, or serial.</li>
+        <li>Modes: <strong>Full Block</strong>, <strong>Read-only</strong>, <strong>Allow</strong>. You can combine with exception rules for specific vendor/product IDs.</li>
+        <li>Risk dashboards under USB Device Control surface which hosts have plugged in what — useful for IR and audit.</li>
+        <li>Like other policies, USB Device Control is assigned to host groups with the Default policy as catch-all.</li>
+      </ul>
+    </section>
+
+    <!-- DOMAIN 15: Dashboards -->
+    <section class="section" id="d15">
+      <div class="section-num">Domain 15 · Dashboards &amp; Reports</div>
+      <h2 class="section-title">Sensor Report, audit logs, scheduled reports</h2>
+      <ul class="facts">
+        <li>Common reports: <strong>Sensor Report</strong> (deployment health, versions, inactive sensors), <strong>Detection Activity</strong>, <strong>Prevention Policy</strong>, <strong>User Audit</strong>, <strong>API Audit</strong>.</li>
+        <li>Audit logs separate <strong>user activity</strong> from <strong>API activity</strong>. Both are queryable and exportable.</li>
+        <li>Reports can be <strong>scheduled</strong> with email delivery — useful for compliance evidence and weekly leadership digests.</li>
+        <li>Custom dashboards: add widgets from a library (detection trends, sensor versions, top processes blocked, etc.) and pin to your home view.</li>
+      </ul>
+    </section>
+
+    <!-- DOMAIN 16: Workflows -->
+    <section class="section" id="d16">
+      <div class="section-num">Domain 16 · Workflows</div>
+      <h2 class="section-title">Automated responses to triggers</h2>
+      <ul class="facts">
+        <li>Falcon Fusion Workflows are trigger-action automations: a detection or condition fires, the workflow runs predefined steps.</li>
+        <li>Trigger types: detection generated, host enters a group, sensor health event, schedule, manual launch.</li>
+        <li>Action types: send notification (email, webhook, ticketing), contain host, update tag, run RTR script, call an API.</li>
+        <li>Workflows have <strong>conditions</strong> and <strong>branches</strong> — you can route based on severity, tactic, hostname pattern.</li>
+        <li>Test workflows before turning them on for production — a misfiring containment workflow will isolate prod servers fast.</li>
+      </ul>
+    </section>
+
+    <div class="section-mark"><span class="section-mark-icon">✦</span></div>
+
+    <!-- CRITICAL DISTINCTIONS -->
+    <section class="section" id="critical">
+      <div class="section-num">★ The critical distinctions</div>
+      <h2 class="section-title">Concepts the exam will try to conflate</h2>
+      <p class="section-intro">These are the high-confusion pairs. If you only memorize one section of this guide, make it this one.</p>
+
+      <div class="prose">
+        <p><strong>IOC vs. IOA.</strong> Indicators of Compromise are <em>artifacts</em> (hashes, IPs, domains) — Falcon's IOC management can only <em>detect</em> on them, not block. Indicators of Attack are <em>behaviors</em> (a process tree pattern, a domain reach-out) — Custom IOAs can kill the process. When the question is "how do I block X," it's almost always Custom IOA, not IOC.</p>
+
+        <p><strong>Detect vs. Prevent.</strong> Every protection feature has two switches. Detect generates an alert. Prevent blocks the activity <em>and</em> generates an alert. A feature can be on in one mode and off in the other. The question "the sensor is alerting but not stopping the file" is asking about this distinction.</p>
+
+        <p><strong>Containment vs. Quarantine.</strong> Containment isolates a <em>host</em> from the network. Quarantine moves a <em>file</em> to a protected location. They're entirely separate concepts; the exam will pair them in answer choices to trip you up.</p>
+
+        <p><strong>RFM vs. inactive.</strong> Reduced Functionality Mode is a sensor with degraded protection (usually OS/kernel related) but still checking in. Inactive is a sensor that <em>isn't checking in at all</em>. Both appear on Host Management but mean different things.</p>
+
+        <p><strong>Default Sensor Update Policy vs. Default Prevention Policy.</strong> Both are catch-alls for their respective policy types. They are distinct policies with distinct settings. The exam will phrase questions ambiguously — read for context (update version pinning → Sensor Update; ML sensitivity → Prevention).</p>
+
+        <p><strong>Read Only Analyst vs. Active Responder vs. Administrator (RTR).</strong> Read Only sees but cannot act. Active Responder can act on a host (kill, get, put, run). Administrator can see <em>everyone else's</em> RTR sessions. If the question is about audit/oversight, it's Administrator. If it's about reading without changing, it's Read Only.</p>
+      </div>
+    </section>
+
+    <div class="section-mark"><span class="section-mark-icon">✦</span></div>
+
+    <!-- PREP STRATEGY -->
+    <section class="section" id="prep">
+      <div class="section-num">★ Prep strategy</div>
+      <h2 class="section-title">Where to actually spend your time</h2>
+      <div class="prose">
+        <p><strong>1. CrowdStrike University, Falcon Administrator Learning Path.</strong> The official courseware is the closest thing to the exam by design. Work through every module; don't skim. The labs reinforce muscle memory for console navigation, which the exam tests indirectly through scenario phrasing.</p>
+
+        <p><strong>2. Hands-on console time, ideally in a test tenant.</strong> Six months in production is the official recommendation for a reason — the exam describes workflows the way an admin <em>does</em> them, not the way a textbook explains them. If you don't have a tenant, ask Trace3 about access to a partner environment.</p>
+
+        <p><strong>3. The official CCFA Certification Exam Guide.</strong> Download from CrowdStrike University. It's brief but lists every domain CrowdStrike commits to testing. Treat it as a checklist.</p>
+
+        <p><strong>4. Practice tests — but pick carefully.</strong> Several Udemy courses and ExamTopics-style sites have practice questions. Use them to surface gaps in your knowledge, not as a primary source. The unofficial dumps often have outdated answers (Falcon UI moves quickly) — verify anything that surprises you against the official docs.</p>
+
+        <p><strong>5. Time-box your sittings.</strong> 60 questions in 90 minutes is 90 seconds per question — comfortable for most, tight if you over-think. Practice at speed before exam day.</p>
+      </div>
+    </section>
+
+    <!-- GLOSSARY -->
+    <section class="section" id="glossary">
+      <div class="section-num">★ Glossary</div>
+      <h2 class="section-title">Acronyms in this guide</h2>
+      <aside class="glossary">
+        <div class="glossary-label">◆ Reference</div>
+        <div class="glossary-grid">
+          <div class="glossary-term">AID</div>
+          <div class="glossary-def">Agent ID — unique identifier assigned to each Falcon sensor</div>
+
+          <div class="glossary-term">CCFA</div>
+          <div class="glossary-def">CrowdStrike Certified Falcon Administrator</div>
+
+          <div class="glossary-term">EDR</div>
+          <div class="glossary-def">Endpoint Detection and Response</div>
+
+          <div class="glossary-term">FDA</div>
+          <div class="glossary-def">Full Disk Access (macOS permission required for the Falcon sensor)</div>
+
+          <div class="glossary-term">IOA</div>
+          <div class="glossary-def">Indicator of Attack — a behavior pattern</div>
+
+          <div class="glossary-term">IOC</div>
+          <div class="glossary-def">Indicator of Compromise — an artifact (hash, IP, domain)</div>
+
+          <div class="glossary-term">OU</div>
+          <div class="glossary-def">Organizational Unit (Active Directory hierarchy)</div>
+
+          <div class="glossary-term">RBAC</div>
+          <div class="glossary-def">Role-Based Access Control</div>
+
+          <div class="glossary-term">RFM</div>
+          <div class="glossary-def">Reduced Functionality Mode — sensor with degraded operation</div>
+
+          <div class="glossary-term">RTR</div>
+          <div class="glossary-def">Real Time Response — Falcon's remote shell capability</div>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="footer">
+      <span>Big House Lab // <script>document.write(new Date().getFullYear())</script> · Field Notes No. 002</span>
+      <span><a href="/">← back to index</a></span>
+    </footer>
+  </div>
+</body>
+</html>
